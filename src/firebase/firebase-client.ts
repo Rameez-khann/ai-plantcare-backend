@@ -16,7 +16,7 @@ export class FirebaseClient {
 
 
   // LIST: Get all records in the collection
-  async getAll() {
+  async getAll(): Promise<any[]> {
     try {
       const snapshot = await this.db.once('value'); // Get all records
       if (!snapshot.exists()) {
@@ -33,7 +33,7 @@ export class FirebaseClient {
   }
 
   // READ: Get a record by ID
-  async getOne(id: string) {
+  async getOne(id: string): Promise<any> {
     try {
       const ref = this.db.child(id); // Reference to a specific record
       const snapshot = await ref.once('value'); // Get the data
@@ -48,7 +48,7 @@ export class FirebaseClient {
   }
 
   // CREATE: Add a new record to the collection
-  async create(data: any) {
+  async create(data: any): Promise<any> {
     try {
       // Generate a unique ID (you can replace this with your custom ID generator)
       const id = data.id || generateUniqueId();
@@ -64,7 +64,7 @@ export class FirebaseClient {
   }
 
   // UPDATE: Update an existing record by ID
-  async update(id: string, data: any) {
+  async update(id: string, data: any): Promise<any> {
     try {
       const ref = this.db.child(id); // Reference to the specific record
       await ref.update(data); // Update the record with new data
@@ -76,7 +76,7 @@ export class FirebaseClient {
 
   // DELETE: Delete a record by ID
 
-  async delete(id: string) {
+  async delete(id: string): Promise<any> {
     try {
       const ref = this.db.child(id); // Reference to the specific record
       await ref.remove(); // Remove the record
