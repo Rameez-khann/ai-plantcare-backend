@@ -43,6 +43,20 @@ app.get('/my-plants', (req, res) => {
 });
 
 
+// Identify Plant
+app.post('/identify-plant', async (req, res) => {
+    try {
+        res.send({
+            instructions: "In progress"
+        })
+
+    } catch (error) {
+        res.send(null)
+    }
+
+});
+
+
 // app.get('/', (req, res) => {
 //     res.send('HELLO RAMEEZ KHANN PLANTS');
 // });
