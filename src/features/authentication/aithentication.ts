@@ -1,5 +1,5 @@
 import { FirebaseClient } from "../../core/firebase/firebase-client";
-import { UserResponse, UserSignup } from "../../core/interfaces/users.interface";
+import { User, UserResponse, UserSignup } from "../../core/interfaces/users.interface";
 
 
 const collection = new FirebaseClient('users');
@@ -25,4 +25,17 @@ export async function registerUser(user: UserSignup): Promise<UserResponse> {
 
 
     // create user
+}
+
+export async function login(payload: { username: string, password: string }) {
+    const user = await collection.getOneByField('username', payload.username);
+    if (user && user?.password === payload.password && payload.password) {
+        return { user }
+    } else {
+        return {
+            user: null,
+            errorMessage: `Wrong email or password`
+        }
+    }
+
 }

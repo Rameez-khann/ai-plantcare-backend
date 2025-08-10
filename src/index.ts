@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors'; // <-- import cors=
 import multer from 'multer';
 import path from 'path';
-import { registerUser } from './features/authentication/signup';
+import { login, registerUser } from './features/authentication/aithentication';
 import { sendImageForIdentification } from './core/kindwise/kindwise.functions';
 dotenv.config();
 
@@ -23,11 +23,22 @@ app.use(express.urlencoded({ extended: true }))
 // Authentication
 app.post('/signup', async (req, res) => {
     try {
-        console.log({ body: req.body });
 
         const createUser = await registerUser(req.body);
         console.log(createUser);
         res.send(createUser)
+
+    } catch (error) {
+        res.send(null)
+    }
+
+});
+
+app.post('/login', async (req, res) => {
+    try {
+
+        const user = await login(req.body);
+        res.send(user)
 
     } catch (error) {
         res.send(null)
