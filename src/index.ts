@@ -5,7 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import { login, registerUser } from './features/authentication/aithentication';
 import { sendImageForIdentification } from './core/kindwise/kindwise.functions';
-import { getDefaultPlantcareInstructions } from './features/indoor-plants/indoor-plants.functions';
+import { getDefaultPlantcareInstructions, savePlantInstructionsToDatabase } from './features/indoor-plants/indoor-plants.functions';
 dotenv.config();
 
 const storage = multer.memoryStorage(); // or use diskStorage if saving to filesystem
@@ -79,6 +79,10 @@ app.post('/identify-plant', upload.single('file'), async (req, res) => {
 });
 
 
+app.get('/plant-instructions', async (req, res) => {
+    const response = await savePlantInstructionsToDatabase();
+    res.send(response);
+});
 
 
 app.listen(PORT, () => {
