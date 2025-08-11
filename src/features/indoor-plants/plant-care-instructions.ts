@@ -180,5 +180,7 @@ export const GenusPlantcareInstructions: PlantCareInstructions[] = [
     { id: 'cyclamen_persicum', genus: 'Cyclamen Persicum', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
     { id: 'datura', genus: 'Datura', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
     { id: 'brugmansia', genus: 'Brugmansia', waterVolume: 500, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'mandevilla', genus: 'Mandevilla', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN }
+    { id: 'mandevilla', genus: 'Mandevilla', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
+    { id: 'default', genus: 'Vriesea', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Bromeliad fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
+
 ]

@@ -6,7 +6,7 @@ import { KindwiseResult, PlantIdentificationResult } from "../../core/kindwise/k
 
 function plantCareInstructionByGenus(genus: string): PlantCareInstructions {
     return GenusPlantcareInstructions.find(p => p.genus.toLowerCase() === genus.toLowerCase())
-        || GenusPlantcareInstructions.find(p => p.id === 'fallback')!;
+        || GenusPlantcareInstructions.find(p => p.id === 'default')!;
 }
 
 
