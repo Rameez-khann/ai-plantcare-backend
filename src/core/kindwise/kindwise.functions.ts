@@ -6,7 +6,7 @@ const httpClient = new HttpClient();
 
 
 export function kindwiseToPlantIdentification(result: KindwiseResult): PlantIdentificationResult {
-    return {
+    const identification = {
         isPlant: result.is_plant.binary,
         probability: result.is_plant.probability,
         classification: result.classification.suggestions.map(suggestion => ({
@@ -16,6 +16,9 @@ export function kindwiseToPlantIdentification(result: KindwiseResult): PlantIden
             similarImages: suggestion.similar_images.map(img => img.url)
         }))
     };
+    const classification = identification.classification.slice(0, 1);
+    identification.classification = classification;
+    return identification;
 }
 
 export async function sendImageForIdentification(image: string): Promise<PlantIdentificationResult | null> {

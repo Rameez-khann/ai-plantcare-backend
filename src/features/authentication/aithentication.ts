@@ -1,5 +1,5 @@
 import { FirebaseClient } from "../../core/firebase/firebase-client";
-import { User, UserResponse, UserSignup } from "../../core/interfaces/users.interface";
+import { User, UserResponse, UserSignup } from "./users.interface";
 
 
 const collection = new FirebaseClient('users');

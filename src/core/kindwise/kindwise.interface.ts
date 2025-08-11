@@ -34,6 +34,8 @@
 //         }
 //       ]
 
+import { PlantCareInstructions } from "../../features/indoor-plants/indoor-plant.interface"
+
 export interface KindwiseResult {
     is_plant: {
         probability: number,
@@ -62,6 +64,8 @@ export interface PlantSuggestion {
     name: string,
     probability: number,
     similarImages: string[],
+    instructions?: PlantCareInstructions,
+
 }
 
 export interface PlantIdentificationResult {

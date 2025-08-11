@@ -1,18 +1,4 @@
-interface IndoorPlant {
-    id: string;
-    name: string;
-    scientificName: string;
-    image: string;
-    careLevel: 'Easy' | 'Moderate' | 'Advanced';
-    //   light: 'Low' | 'Medium' | 'Bright' | 'Bright indirect' | 'Bright direct';
-    light: string;
-    waterFrequency: number; // days between watering
-    waterVolume: number; // ml
-    fertilizer: string;
-    nutritionFrequency: number; // days between feeding
-    soilType: string;
-    notes: string;
-}
+import { IndoorPlant } from "./indoor-plant.interface";
 
 export const indoorPlantsList: IndoorPlant[] = [
     {
