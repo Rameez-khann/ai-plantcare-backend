@@ -4,8 +4,8 @@ import cors from 'cors'; // <-- import cors=
 import multer from 'multer';
 import path from 'path';
 import { login, registerUser } from './features/authentication/aithentication';
-import { sendImageForIdentification } from './core/kindwise/kindwise.functions';
-import { getDefaultPlantcareInstructions, savePlantInstructionsToDatabase } from './features/indoor-plants/indoor-plants.functions';
+import { sendImageForHealthCheck, sendImageForIdentification } from './core/kindwise/kindwise.functions';
+import { getDefaultPlantcareInstructions } from './features/indoor-plants/plant-care-instructions';
 dotenv.config();
 
 const storage = multer.memoryStorage(); // or use diskStorage if saving to filesystem
@@ -29,8 +29,6 @@ app.post('/signup', async (req, res) => {
     try {
 
         const createUser = await registerUser(req.body);
-        console.log(createUser);
-        res.send(createUser)
 
     } catch (error) {
         res.send(null)
@@ -61,31 +59,54 @@ app.get('/my-plants', (req, res) => {
 });
 
 
+// app.post('/identify-plant', upload.single('file'), async (req, res) => {
+
+//     if (!req.file) {
+//         return res.status(400).send('No file uploaded.');
+//     }
+
+//     const base64 = req.file.buffer.toString('base64');
+//     const identification = await sendImageForIdentification(base64);
+//     if (identification) {
+//         const instructions = getDefaultPlantcareInstructions(identification);
+//         identification.classification[0].instructions = instructions;
+//         // identification.instructions = instructions;
+
+//     }
+//     res.send(identification)
+// });
+
 app.post('/identify-plant', upload.single('file'), async (req, res) => {
+    const userId = req.body.userId; // 👈 capture userId
 
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
 
     const base64 = req.file.buffer.toString('base64');
-    const identification = await sendImageForIdentification(base64);
+    const identification = await sendImageForIdentification(base64, userId);
+
     if (identification) {
-        const instructions = getDefaultPlantcareInstructions(identification);
+        const instructions = await getDefaultPlantcareInstructions(identification);
         identification.classification[0].instructions = instructions;
-        // identification.instructions = instructions;
 
     }
-    res.send(identification)
+
+    console.log(identification);
+
+
+    res.send(identification);
 });
 
 
-app.get('/plant-instructions', async (req, res) => {
-    const response = await savePlantInstructionsToDatabase();
-    res.send(response);
-});
+
+// app.get('/plant-instructions', async (req, res) => {
+//     const response = await savePlantInstructionsToDatabase();
+//     res.send(response);
+// });
 
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.info(`🚀 Server is running on http://localhost:${PORT}`);
 
 });

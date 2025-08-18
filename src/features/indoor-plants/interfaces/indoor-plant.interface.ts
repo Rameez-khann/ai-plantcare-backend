@@ -44,39 +44,17 @@ export interface PlantNutrition {
 export interface PlantCareInstructions {
     id: string;
     genus: string;
+    scientificName?: string,
     waterVolume: number; // ml
     wateringInterval: number; // days
     nutrition: PlantNutrition[];
     soilType: SoilType;
     sunlight: SunlightRequirement;
+    imageURl?: string,
 }
 
-
-// export enum SoilType {
-//     SAND = 'Sand',
-//     // Others
-// }
-
-// export interface PlantNutrition {
-//     nutrient: string,
-//     quantity: number,
-//     interval: number
-// }
-
-// export interface PlantCareInstructions {
-//     id: string,
-//     genus: string,
-//     waterVolume: number;
-//     wateringInterval: number;
-//     nutrition: PlantNutrition[],
-//     soilType: SoilType,
-// }
-
-
-
-
-
-// export interface PlantCareMetricsWithSpecies extends PlantCareMetrics {
-//     genus: string[], // Can also use species or plant names
-// }
-
+export interface UserPlants {
+    id: string,
+    userId: string,
+    scientificNames: string[]
+}
