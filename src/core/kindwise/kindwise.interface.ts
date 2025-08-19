@@ -33,12 +33,6 @@ export interface PlantSuggestion {
     instructions?: PlantCareInstructions,
 }
 
-export interface PlantDisease {
-    id: string,
-    name: string,
-    probability: number,
-    similarImages: string[],
-}
 
 export interface PlantIdentificationResult {
     userId?: string,
@@ -46,6 +40,7 @@ export interface PlantIdentificationResult {
     probability: number,
     classification: PlantSuggestion[],
     health?: PlantHealthResult,
+    imageUrl?: string,
 }
 
 export interface PlantHealthResult {
@@ -53,7 +48,9 @@ export interface PlantHealthResult {
     userId?: string,
     isPlant: boolean,
     probability: number,
-    diseases: PlantDisease[],
+    disease: PlantDisease | null,
+    plantId?: string,
+    imageUrl?: string,
 }
 
 
@@ -65,6 +62,14 @@ export enum PlantSymptoms {
     EXCESS_LIGHT = "light excess",
     SENESCENCE = "senescence",
 }
+
+export interface PlantDisease {
+    id: string,
+    name: string,
+    probability: number,
+    similarImages: string[],
+}
+
 
 export interface KindWiseHealthResult {
     is_plant: {

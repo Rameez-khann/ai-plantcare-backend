@@ -65,3 +65,4 @@ export async function getDefaultPlantcareInstructions(payload: PlantIdentificati
     return instructions;
 }
 
+

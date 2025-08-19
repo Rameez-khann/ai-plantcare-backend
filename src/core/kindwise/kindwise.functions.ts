@@ -1,8 +1,8 @@
 import { generateUniqueId } from "victor-dev-toolbox";
 import { HttpClient } from "../http/http"
 import { KindwiseConfig, kindwiseHeaders } from "./kindwise.config";
-import { KindWiseHealthResult, KindwiseResult, PlantHealthResult, PlantIdentificationResult } from "./kindwise.interface";
-import { savePlantHealth } from "../../features/indoor-plants/plant-health-history";
+import { KindWiseHealthResult, KindwiseResult, PlantDisease, PlantHealthResult, PlantIdentificationResult } from "./kindwise.interface";
+import { savePlantHealth } from "../../features/indoor-plants/plant-health";
 
 const httpClient = new HttpClient();
 
@@ -17,7 +17,7 @@ function kindwiseToPlantIdentification(result: KindwiseResult): PlantIdentificat
             name: suggestion.name,
             probability: suggestion.probability,
             similarImages: suggestion.similar_images.map(img => img.url)
-        }))
+        })),
     };
     const classification = identification.classification.slice(0, 1);
     identification.classification = classification;
@@ -25,36 +25,41 @@ function kindwiseToPlantIdentification(result: KindwiseResult): PlantIdentificat
 }
 
 export function kindwiseToPlantHealth(result: KindWiseHealthResult): PlantHealthResult {
-
-    const identification: PlantHealthResult = {
-        id: generateUniqueId(),
-        isPlant: result.is_plant.binary,
-        probability: result.is_plant.probability,
-        diseases: result.disease.suggestions?.map(suggestion => ({
+    const suggestion = result.disease.suggestions[0] || null;
+    let disease: PlantDisease | null = null;
+    if (suggestion) {
+        disease = {
             id: suggestion.id,
             name: suggestion.name,
             probability: suggestion.probability,
             similarImages: suggestion.similar_images.map(img => img.url)
-        }))
+        }
+    }
+
+    const identification: PlantHealthResult = {
+        id: generateUniqueId(),
+
+        isPlant: result.is_plant.binary,
+        probability: result.is_plant.probability,
+        disease
     };
-    const classification = identification.diseases.slice(0, 1);
-    identification.diseases = classification;
-    console.log(classification, identification);
+
 
     return identification;
 }
 
-export async function sendImageForIdentification(image: string, userId?: string): Promise<PlantIdentificationResult | null> {
+export async function sendImageForIdentification(input: { image: string, userId?: string, plantId?: string, imageURL?: string }): Promise<PlantIdentificationResult | null> {
     // const url = `${KindwiseConfig.apiURL}/identification`;
+    const { image, userId, plantId } = input;
+
     const url = `${KindwiseConfig.apiURL}/identification`;
     const payload = {
         images: [image],
         "similar_images": true
     }
-    const health = await sendImageForHealthCheck(image, userId);
+    const health = await sendImageForHealthCheck({ image, userId, plantId });
     try {
         const response = await httpClient.post(url, payload, { headers: kindwiseHeaders });
-        console.log(response);
 
         if (response?.result) {
             const result = kindwiseToPlantIdentification(response.result);
@@ -74,18 +79,28 @@ export async function sendImageForIdentification(image: string, userId?: string)
 
 }
 
-export async function sendImageForHealthCheck(image: string, userId?: string): Promise<PlantHealthResult | null> {
+export async function sendImageForHealthCheck(input: { image: string, userId?: string, plantId?: string, imageURL?: string }): Promise<PlantHealthResult | null> {
+    const { image, userId, plantId, imageURL } = input;
     // const url = `${KindwiseConfig.apiURL}/identification`;
     const url = `${KindwiseConfig.healthURL}`;
     const payload = {
         images: [image],
         "similar_images": true
     }
+
+
+
     const response = await httpClient.post(url, payload, { headers: kindwiseHeaders });
 
     if (response?.result) {
         const result = kindwiseToPlantHealth(response.result);
         result.userId = userId;
+        result.plantId = plantId;
+        result.imageUrl
+        if (imageURL) {
+            result.imageUrl = imageURL;
+        }
+
         savePlantHealth(result);
         return result;
     }
@@ -93,3 +108,6 @@ export async function sendImageForHealthCheck(image: string, userId?: string): P
     return null;
 
 }
+
+
+

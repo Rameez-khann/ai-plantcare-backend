@@ -1,3 +1,5 @@
+// const kindWiseKey = `smcml7WqbTPg37RpcRmihN8GqTC6DituatMBapefBwVrjarvvx`;
+
 export const KindwiseConfig = {
     apiURL: `https://plant.id/api/v3`,
     // healthApiKey: `Nh8Zq7J8P7h5F6lNwaep5QAsvl7HyLZiUZdb3dOKoBBYyFGIbH`,

@@ -4,7 +4,7 @@ import { admin } from './firebase-config';
 import { generateUniqueId } from 'victor-dev-toolbox';
 
 
-export type FirebaseCollections = 'users' | 'plant-care-instructions' | 'user-plants' | 'plant-health-history';
+export type FirebaseCollections = 'users' | 'plant-care-instructions' | 'user-plants' | 'plant-health-history' | 'plant-identification-history';
 /**
  * FirebaseClient
  * All responses return data exactly as in the database (no {id, data} structures)
