@@ -1,10 +1,11 @@
 import { PlantCareInstructions } from './interfaces/indoor-plant.interface';
 import { generateUniqueId, getFieldValuesFromArray, sortArrayByKey } from "victor-dev-toolbox";
 import { FirebaseClient } from "../../core/firebase/firebase-client";
-import { PlantDisease, PlantHealthResult } from "../../core/kindwise/kindwise.interface";
+import { PlantDiseaseInfo, PlantHealthResult, PlantIdentificationResult } from "../../core/kindwise/kindwise.interface";
 
 const plantHealthHistoryTable = new FirebaseClient('plant-health-history');
 const instructionsTable = new FirebaseClient('plant-care-instructions');
+const identificationTable = new FirebaseClient('identified-plants');
 
 
 
@@ -13,13 +14,17 @@ export async function savePlantHealth(health: PlantHealthResult) {
     return save;
 }
 
-export async function adjustPlantSuggestions(plant: PlantHealthResult) {
-    //  Get history of plant
-    const history: PlantHealthResult[] = await getPlantHistory(plant.plantId);
-}
+// export async function adjustPlantSuggestions(plant: PlantHealthResult) {
+//     if (!plant.plantId) {
+//         return null;
+//     }
+//     //  Get history of plant
+//     const history: PlantHealthResult[] = await getPlantRecords(plant.plantId);
 
-async function getPlantHistory(plantId?: string) {
-    if (plantId) {
+// }
+
+async function getPlantRecords(plantId: string): Promise<PlantHealthResult[]> {
+    if (!plantId) {
         return [];
     }
     const history: PlantHealthResult[] = await plantHealthHistoryTable.getByField('plantId', plantId)
@@ -28,13 +33,36 @@ async function getPlantHistory(plantId?: string) {
     // scan the last 10 days
 }
 
+export async function getPlantHistory(plantId: string): Promise<{ identification: PlantIdentificationResult, history: PlantHealthResult[] }> {
+    const identification = await getPlantIdentification(plantId);
+    // get the plant from user-plants
+    // Get health history
+    const history = await getPlantRecords(plantId);
+    return { identification, history }
+}
+
 async function analyzePlantHistory(plants: PlantHealthResult[], instructions: PlantCareInstructions) {
-    const diseases: PlantDisease[] = getFieldValuesFromArray('diseases', plants);
+    const diseases: PlantDiseaseInfo[] = getFieldValuesFromArray('diseases', plants);
 
 }
 
 
-// async function analyzeDisease(disease: PlantDisease) {
+export async function savePlantIdentification(identification: PlantIdentificationResult): Promise<PlantIdentificationResult> {
+    return identificationTable.create(identification)
+}
+
+export async function getPlantIdentification(id: string): Promise<PlantIdentificationResult> {
+    return identificationTable.getOne(id);
+
+}
+
+
+
+
+
+
+
+// async function analyzeDisease(disease: PlantDiseaseInfo) {
 //     switch (disease) {
 //         case value:
 

@@ -1,3 +1,4 @@
+import { generateUniqueId } from "victor-dev-toolbox";
 import { Application, PORT } from "./application";
 import { convertToBase64, saveFileToStorage } from "./core/files/files";
 import { storageConfig } from "./core/files/storage";
@@ -7,8 +8,18 @@ import { login, registerUser } from "./features/authentication/aithentication";
 import { UserResponse } from "./features/authentication/users.interface";
 import { getDefaultPlantcareInstructions } from "./features/indoor-plants/plant-care-instructions";
 import path from "path";
+import { getPlantHistory, savePlantIdentification } from "./features/indoor-plants/plant-health";
+import { getUserPlants } from "./features/indoor-plants/user-plants";
+import { log } from "console";
 const app = Application;
+import express from "express";
 
+
+
+app.use(
+    "/assets",
+    express.static(path.join(process.cwd(), "assets"))
+);
 
 
 // Signup
@@ -41,8 +52,7 @@ app.post('/login', async (req, res) => {
 //  identify Plant
 app.post('/identify-plant', storageConfig.single('file'), async (req, res) => {
     const userId = req.body.userId; // 👈 capture userId
-    const plantId = req.body.plantId || null;
-
+    const plantId = generateUniqueId();
     // Check if image was uploaded
     if (!req.file) {
         return res.status(400).send('No image uploaded.');
@@ -53,19 +63,22 @@ app.post('/identify-plant', storageConfig.single('file'), async (req, res) => {
     // Convert image to base64 as required by Kindwise
     const filePath = path.resolve(req.file.path);
     const base64 = convertToBase64(filePath);
-    // const imageURL = await saveFileToStorage(req.file);
-    console.log({ buffer: req.file.buffer });
 
     // Plant Identification from Kindwise
-    const identification: PlantIdentificationResult | null = await sendImageForIdentification({ image: base64, userId, plantId, imageURL: base64 });
+    const identification: PlantIdentificationResult | null = await sendImageForIdentification({ image: base64, userId, plantId });
 
     if (identification) {
+        const imageURL = await saveFileToStorage(req.file);
         //   Get the instructions for the plant specified
+        identification.imageUrl = imageURL;
+
         const instructions = await getDefaultPlantcareInstructions(identification);
 
-        identification.classification[0].instructions = instructions;
+        identification.classification.instructions = instructions;
+        const saveIdentification = await savePlantIdentification(identification);
 
     }
+
     res.send(identification);
 });
 
@@ -73,11 +86,15 @@ app.post('/identify-plant', storageConfig.single('file'), async (req, res) => {
 //  Health Check
 app.post('/plant-health', storageConfig.single('file'), async (req, res) => {
     const userId = req.body.userId; // 👈 capture userId
-    const plantId = req.body.plantId || null;
+    const plantId = req.body.plantId;
 
     // Check if image was uploaded
     if (!req.file) {
         return res.status(400).send('No image uploaded.');
+    }
+
+    if (!plantId) {
+        return res.status(400).send('Plant Id not found');
     }
 
 
@@ -90,6 +107,30 @@ app.post('/plant-health', storageConfig.single('file'), async (req, res) => {
 
 
     res.send(healthCheck);
+});
+
+
+app.get('/plant-health/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // get the dynamic id
+        const result = await getPlantHistory(id); // pass id if needed
+        res.json(result); // send response back
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Plant Records not found" });
+    }
+});
+
+
+app.get('/dashboard/user-plants/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // get the dynamic id
+        const result = await getUserPlants(id); // pass id if needed
+        res.json(result); // send response back
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Plant Records not found" });
+    }
 });
 
 

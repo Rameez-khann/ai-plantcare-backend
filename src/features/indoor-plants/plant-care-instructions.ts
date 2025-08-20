@@ -50,12 +50,12 @@ export async function getPlantCareInstructions(scientificName: string) {
 
 
 export async function getDefaultPlantcareInstructions(payload: PlantIdentificationResult): Promise<PlantCareInstructions> {
-    const scientificName = payload.classification[0].name;
+    const scientificName = payload.classification.name;
 
     const instructions = await getPlantCareInstructions(scientificName);
 
     if (!instructions.imageURl) {
-        const imageUrl = payload.classification[0].similarImages[0];
+        const imageUrl = payload.classification.similarImages[0];
         instructions.imageURl = imageUrl || '';
         updatePlantCareInstructions(instructions.id, { imageURl: imageUrl });
     }

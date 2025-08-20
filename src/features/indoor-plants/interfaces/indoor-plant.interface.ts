@@ -51,6 +51,7 @@ export interface PlantCareInstructions {
     soilType: SoilType;
     sunlight: SunlightRequirement;
     imageURl?: string,
+    plantId?: string,
 }
 
 export interface UserPlants {

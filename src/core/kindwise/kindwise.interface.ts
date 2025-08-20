@@ -3,6 +3,7 @@
 import { PlantCareInstructions } from "../../features/indoor-plants/interfaces/indoor-plant.interface"
 
 export interface KindwiseResult {
+    plantId: string,
     is_plant: {
         probability: number,
         binary: boolean,
@@ -35,20 +36,25 @@ export interface PlantSuggestion {
 
 
 export interface PlantIdentificationResult {
+    id: string,
     userId?: string,
     isPlant: boolean,
     probability: number,
-    classification: PlantSuggestion[],
+    classification: PlantSuggestion,
     health?: PlantHealthResult,
     imageUrl?: string,
+    plantId: string
 }
+
+
+
 
 export interface PlantHealthResult {
     id: string,
     userId?: string,
     isPlant: boolean,
     probability: number,
-    disease: PlantDisease | null,
+    disease: PlantDiseaseInfo | null,
     plantId?: string,
     imageUrl?: string,
 }
@@ -61,9 +67,20 @@ export enum PlantSymptoms {
     LACK_OF_LIGHT = "lack of light",
     EXCESS_LIGHT = "light excess",
     SENESCENCE = "senescence",
+    FUNGI = "Fungi"
 }
 
-export interface PlantDisease {
+export enum PlantEnumsaDiseases {
+    NutrientDeficiency = "nutrient deficiency",
+    WaterExcessOrUneven = "water excess or uneven watering",
+    LackOfLight = "lack of light",
+    LightExcess = "light excess",
+    WaterDeficiency = "water deficiency",
+    Senescence = "senescence"
+}
+
+
+export interface PlantDiseaseInfo {
     id: string,
     name: string,
     probability: number,

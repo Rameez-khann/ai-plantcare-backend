@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import multer from "multer";
+import { fileURLToPath } from "url";
 
 // Configure multer (here using memory storage, can also use diskStorage)
 const storage = multer.memoryStorage();
@@ -16,5 +17,13 @@ Application.use(cors({
 }));
 Application.use(express.json());
 Application.use(express.urlencoded({ extended: true }));
-Application.use("/images", express.static(path.join(__dirname, "assets")));
+// Application.use("/assets", express.static(path.join(__dirname, "/assets")));
+
+// Application.use("/assets", express.static(path.join(__dirname, "assets")));
+
+Application.use(
+    "/assets",
+    express.static(path.join(process.cwd(), "assets"))
+);
+
 
