@@ -4,7 +4,13 @@ import { admin } from './firebase-config';
 import { generateUniqueId } from 'victor-dev-toolbox';
 
 
-export type FirebaseCollections = 'users' | 'plant-care-instructions' | 'user-plants' | 'plant-health-history' | 'identified-plants';
+export type FirebaseCollections =
+  | 'users'
+  | 'plant-care-instructions'
+  | 'user-plants'
+  | 'plant-health-history'
+  | 'identified-plants'
+  | 'customized-user-instructions';
 /**
  * FirebaseClient
  * All responses return data exactly as in the database (no {id, data} structures)
@@ -65,7 +71,7 @@ export class FirebaseClient {
 
   // CREATE: Add a new record to the collection (returns the object exactly as stored)
   async create(data: any): Promise<any> {
-
+    delete data.createdAt;
     try {
       const id = data.id || generateUniqueId();
       const payload = {

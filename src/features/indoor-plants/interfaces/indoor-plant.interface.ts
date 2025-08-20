@@ -25,10 +25,6 @@ export enum SoilType {
 }
 
 export enum SunlightRequirement {
-    // FULL_SUN = 'Full sunshine. Expose to as much sunlight as possible',
-    // PARTIAL_SUN = '',
-    // INDIRECT = 'Bright Indirect',
-    // LOW_LIGHT = 'Low Light'
     FULL_SUN = 'Place in direct sunlight all day',
     PARTIAL_SUN = 'Give some direct sun, some shade',
     INDIRECT = 'Keep in bright light, no direct sun',

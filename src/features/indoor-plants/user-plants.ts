@@ -74,3 +74,8 @@ export async function getPlantIdentificationRecords(plantId: string): Promise<Pl
 export async function savePlantIdentificationRecord(payload: PlantCareInstructions) {
     return identificationHistory.create(payload);
 }
+
+
+export async function customizeAndSaveUserInstructions(instructions: PlantCareInstructions) {
+
+}

@@ -48,7 +48,7 @@ export interface PlantIdentificationResult {
 
 export interface PlantDiseaseInfo {
     id: string,
-    name: string,
+    name: PlantSymptoms,
     probability: number,
     similarImages: string[],
 }
@@ -77,10 +77,11 @@ export enum PlantSymptoms {
     LACK_OF_LIGHT = "lack of light",
     EXCESS_LIGHT = "light excess",
     SENESCENCE = "senescence",
-    FUNGI = "Fungi"
+    FUNGI = "Fungi",
+    INVALID = "Invalid"
 }
 
-export enum PlantEnumsaDiseases {
+export enum PlantDiseasesEnums {
     NutrientDeficiency = "nutrient deficiency",
     WaterExcessOrUneven = "water excess or uneven watering",
     LackOfLight = "lack of light",

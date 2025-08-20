@@ -34,6 +34,16 @@ async function getPlantRecords(plantId: string): Promise<PlantHealthResult[]> {
     // scan the last 10 days
 }
 
+async function getPlantInstructions(plantId: string): Promise<PlantHealthResult[]> {
+    if (!plantId) {
+        return [];
+    }
+    const history: PlantHealthResult[] = await instructionsTable.getByField('plantId', plantId)
+    return sortArrayByKey('createdAt', 'DESC', history);
+
+    // scan the last 10 days
+}
+
 export async function getPlantHistory(plantId: string): Promise<{ identification: PlantIdentificationResult, history: string }> {
     const identification = await getPlantIdentification(plantId);
     // get the plant from user-plants
@@ -50,7 +60,7 @@ async function analyzePlantHistory(plants: PlantHealthResult[], instructions: Pl
 
 
 export async function savePlantIdentification(identification: PlantIdentificationResult): Promise<PlantIdentificationResult> {
-    return identificationTable.create(identification)
+    return identificationTable.create(identification);
 }
 
 export async function getPlantIdentification(id: string): Promise<PlantIdentificationResult> {

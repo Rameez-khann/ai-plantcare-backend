@@ -3,6 +3,7 @@ import { HttpClient } from "../http/http"
 import { KindwiseConfig, kindwiseHeaders } from "./kindwise.config";
 import { KindWiseHealthResult, KindwiseResult, PlantDiseaseInfo, PlantHealthResult, PlantIdentificationResult } from "./kindwise.interface";
 import { savePlantHealth } from "../../features/indoor-plants/plant-health";
+import { PlantAnalysis } from "../tensorflow/plant-analysis";
 
 const httpClient = new HttpClient();
 
@@ -84,7 +85,7 @@ export async function sendImageForIdentification(input: { image: string, userId?
 
 }
 
-export async function sendImageForHealthCheck(input: { image: string, userId?: string, plantId?: string, imageURL?: string }): Promise<PlantHealthResult | null> {
+export async function sendImageForHealthCheck(input: { image: string, userId?: string, plantId: string, imageURL?: string }): Promise<PlantHealthResult | null> {
     const { image, userId, plantId, imageURL } = input;
     // const url = `${KindwiseConfig.apiURL}/identification`;
     const url = `${KindwiseConfig.healthURL}`;
@@ -106,6 +107,8 @@ export async function sendImageForHealthCheck(input: { image: string, userId?: s
             result.imageUrl = imageURL;
         }
 
+        const plantAnalysis = new PlantAnalysis();
+        const analysis = await plantAnalysis.analyzeCurrentResults(plantId, response)
         savePlantHealth(result);
         return result;
     }

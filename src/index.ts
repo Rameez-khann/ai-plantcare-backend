@@ -13,6 +13,7 @@ import { getUserPlants } from "./features/indoor-plants/user-plants";
 import { log } from "console";
 const app = Application;
 import express from "express";
+import { PlantAnalysis } from "./core/tensorflow/plant-analysis";
 
 
 
