@@ -46,6 +46,12 @@ export interface PlantIdentificationResult {
     plantId: string
 }
 
+export interface PlantDiseaseInfo {
+    id: string,
+    name: string,
+    probability: number,
+    similarImages: string[],
+}
 
 
 
@@ -57,7 +63,11 @@ export interface PlantHealthResult {
     disease: PlantDiseaseInfo | null,
     plantId?: string,
     imageUrl?: string,
+    healthy?: string,
+    createdAt?: string,
 }
+
+
 
 
 export enum PlantSymptoms {
@@ -80,12 +90,12 @@ export enum PlantEnumsaDiseases {
 }
 
 
-export interface PlantDiseaseInfo {
-    id: string,
-    name: string,
-    probability: number,
-    similarImages: string[],
-}
+// export interface PlantDiseaseInfo {
+//     id: string,
+//     name: string,
+//     probability: number,
+//     similarImages: string[],
+// }
 
 
 export interface KindWiseHealthResult {

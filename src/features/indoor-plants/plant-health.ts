@@ -2,6 +2,7 @@ import { PlantCareInstructions } from './interfaces/indoor-plant.interface';
 import { generateUniqueId, getFieldValuesFromArray, sortArrayByKey } from "victor-dev-toolbox";
 import { FirebaseClient } from "../../core/firebase/firebase-client";
 import { PlantDiseaseInfo, PlantHealthResult, PlantIdentificationResult } from "../../core/kindwise/kindwise.interface";
+import { showPlantHistory } from './plant-history';
 
 const plantHealthHistoryTable = new FirebaseClient('plant-health-history');
 const instructionsTable = new FirebaseClient('plant-care-instructions');
@@ -33,11 +34,12 @@ async function getPlantRecords(plantId: string): Promise<PlantHealthResult[]> {
     // scan the last 10 days
 }
 
-export async function getPlantHistory(plantId: string): Promise<{ identification: PlantIdentificationResult, history: PlantHealthResult[] }> {
+export async function getPlantHistory(plantId: string): Promise<{ identification: PlantIdentificationResult, history: string }> {
     const identification = await getPlantIdentification(plantId);
     // get the plant from user-plants
     // Get health history
-    const history = await getPlantRecords(plantId);
+    const plantHistory = await getPlantRecords(plantId);
+    const history = showPlantHistory(plantHistory);
     return { identification, history }
 }
 
