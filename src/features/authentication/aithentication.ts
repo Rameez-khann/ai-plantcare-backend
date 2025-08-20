@@ -27,7 +27,7 @@ export async function registerUser(user: UserSignup): Promise<UserResponse> {
     // create user
 }
 
-export async function login(payload: { username: string, password: string }) {
+export async function login(payload: { username: string, password: string }): Promise<UserResponse> {
     const user = await collection.getOneByField('username', payload.username);
     if (user && user?.password === payload.password && payload.password) {
         return { user }

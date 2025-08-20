@@ -1,186 +1,68 @@
-import { PlantCareInstructions, SoilType, SunlightRequirement } from "./indoor-plant.interface";
+import { FirebaseClient } from "../../core/firebase/firebase-client";
+import { PlantIdentificationResult } from "../../core/kindwise/kindwise.interface";
+import { PlantCareInstructions } from "./interfaces/indoor-plant.interface";
+import { DefaultPlantcareInstructions } from "./default-plant-instructions";
+import { generateUniqueId } from "victor-dev-toolbox";
+
+const table = new FirebaseClient('plant-care-instructions');
+
+export function plantCareInstructionByGenus(input: string): PlantCareInstructions {
+    const genus = input.split(' ')[0];
+
+    const instructions = DefaultPlantcareInstructions.find(p => p.genus.toLowerCase() === genus.toLowerCase()) || DefaultPlantcareInstructions.find(p => p.id === 'default')!;
+    return instructions;
+}
+
+export async function savePlantcareInstructions(instructions: PlantCareInstructions) {
+    const recordInDb = await table.getOneByField('scientificName', instructions.scientificName);
+    if (recordInDb) {
+        return recordInDb;
+    }
+    instructions.id = generateUniqueId();
+    const save = await table.create(instructions);
+    return save;
+}
 
 
-export const GenusPlantcareInstructions: PlantCareInstructions[] = [
-    { id: 'ficus    ', genus: 'Ficus', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'spathiphyllum', genus: 'Spathiphyllum', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'epipremnum', genus: 'Epipremnum', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'dracaena', genus: 'Dracaena', waterVolume: 350, wateringInterval: 10, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 60 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'chlorophytum', genus: 'Chlorophytum', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'calathea', genus: 'Calathea', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'zamioculcas', genus: 'Zamioculcas', waterVolume: 200, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'sansevieria', genus: 'Sansevieria', waterVolume: 150, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'monstera', genus: 'Monstera', waterVolume: 500, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'philodendron', genus: 'Philodendron', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'anthurium', genus: 'Anthurium', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'Orchid fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'aglaonema', genus: 'Aglaonema', waterVolume: 350, wateringInterval: 10, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 45 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'dieffenbachia', genus: 'Dieffenbachia', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'codiaeum', genus: 'Codiaeum', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'pothos', genus: 'Pothos', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'schefflera', genus: 'Schefflera', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 45 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'begonia', genus: 'Begonia', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'geranium', genus: 'Geranium', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'orchid', genus: 'Orchid', waterVolume: 200, wateringInterval: 7, nutrition: [{ nutrient: 'Orchid fertilizer', quantity: 3, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'succulent', genus: 'Succulent', waterVolume: 100, wateringInterval: 21, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'aloe', genus: 'Aloe', waterVolume: 120, wateringInterval: 21, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'haworthia', genus: 'Haworthia', waterVolume: 100, wateringInterval: 21, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'crassula', genus: 'Crassula', waterVolume: 150, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'peperomia', genus: 'Peperomia', waterVolume: 200, wateringInterval: 10, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'coleus', genus: 'Coleus', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'nerium', genus: 'Nerium', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'hibiscus', genus: 'Hibiscus', waterVolume: 500, wateringInterval: 5, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'chamaedorea', genus: 'Chamaedorea', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'areca', genus: 'Areca', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Palm fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'kentia', genus: 'Kentia', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Palm fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'bamboo', genus: 'Bamboo', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'cycas', genus: 'Cycas', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'Palm fertilizer', quantity: 5, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'plumeria', genus: 'Plumeria', waterVolume: 500, wateringInterval: 4, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'euphorbia', genus: 'Euphorbia', waterVolume: 120, wateringInterval: 21, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'senecio', genus: 'Senecio', waterVolume: 120, wateringInterval: 21, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'kalanchoe', genus: 'Kalanchoe', waterVolume: 150, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'adenium', genus: 'Adenium', waterVolume: 150, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'oxalis', genus: 'Oxalis', waterVolume: 200, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'clivia', genus: 'Clivia', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'hypoestes', genus: 'Hypoestes', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 3, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'streptocarpus', genus: 'Streptocarpus', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'guzmania', genus: 'Guzmania', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Bromeliad fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'vriesea', genus: 'Vriesea', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Bromeliad fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'neoregelia', genus: 'Neoregelia', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Bromeliad fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'generic_indoor', genus: 'Generic Indoor Plant', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'maranta', genus: 'Maranta', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'hoya', genus: 'Hoya', waterVolume: 200, wateringInterval: 10, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'tradescantia', genus: 'Tradescantia', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'pilea', genus: 'Pilea', waterVolume: 200, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'syngonium', genus: 'Syngonium', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'alocasia', genus: 'Alocasia', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'caladium', genus: 'Caladium', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'yucca', genus: 'Yucca', waterVolume: 300, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'pachira', genus: 'Pachira', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'citrus', genus: 'Citrus', waterVolume: 500, wateringInterval: 5, nutrition: [{ nutrient: 'Citrus fertilizer', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'gardenia', genus: 'Gardenia', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Acid-loving fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'azalea', genus: 'Azalea', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Acid-loving fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'nephrolepis', genus: 'Nephrolepis', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'pteris', genus: 'Pteris', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'aechmea', genus: 'Aechmea', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Bromeliad fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'tillandsia', genus: 'Tillandsia', waterVolume: 50, wateringInterval: 3, nutrition: [{ nutrient: 'Air plant fertilizer', quantity: 1, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'rhipsalis', genus: 'Rhipsalis', waterVolume: 150, wateringInterval: 7, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'schlumbergera', genus: 'Schlumbergera', waterVolume: 200, wateringInterval: 7, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'echeveria', genus: 'Echeveria', waterVolume: 100, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'sedum', genus: 'Sedum', waterVolume: 120, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'lithops', genus: 'Lithops', waterVolume: 50, wateringInterval: 30, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 1, interval: 120 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'aeonium', genus: 'Aeonium', waterVolume: 150, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'gasteria', genus: 'Gasteria', waterVolume: 100, wateringInterval: 21, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'aspidistra', genus: 'Aspidistra', waterVolume: 300, wateringInterval: 10, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'ruellia', genus: 'Ruellia', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'impatiens', genus: 'Impatiens', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'bougainvillea', genus: 'Bougainvillea', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'jasminum', genus: 'Jasminum', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'fittonia', genus: 'Fittonia', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'cordyline', genus: 'Cordyline', waterVolume: 350, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'croton', genus: 'Croton', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'fatshedera', genus: 'Fatshedera', waterVolume: 350, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'hedera', genus: 'Hedera', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'tradescantia_zebrina', genus: 'Tradescantia Zebrina', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'scindapsus', genus: 'Scindapsus', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'rhaphidophora', genus: 'Rhaphidophora', waterVolume: 350, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'aeschynanthus', genus: 'Aeschynanthus', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'columnea', genus: 'Columnea', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'sinningia', genus: 'Sinningia', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'episcia', genus: 'Episcia', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'cyclamen', genus: 'Cyclamen', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'primula', genus: 'Primula', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'cyclamen_persicum', genus: 'Cyclamen Persicum', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'datura', genus: 'Datura', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'brugmansia', genus: 'Brugmansia', waterVolume: 500, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'mandevilla', genus: 'Mandevilla', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'strelitzia', genus: 'Strelitzia', waterVolume: 500, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'ravenea', genus: 'Ravenea', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Palm fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'livistona', genus: 'Livistona', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Palm fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'phoenix', genus: 'Phoenix', waterVolume: 450, wateringInterval: 5, nutrition: [{ nutrient: 'Palm fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'beaucarnea', genus: 'Beaucarnea', waterVolume: 200, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'polyscias', genus: 'Polyscias', waterVolume: 350, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'fatsia', genus: 'Fatsia', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'cyperus', genus: 'Cyperus', waterVolume: 500, wateringInterval: 3, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'justicia', genus: 'Justicia', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'crossandra', genus: 'Crossandra', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'ixora', genus: 'Ixora', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Acid-loving fertilizer', quantity: 5, interval: 14 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'pentas', genus: 'Pentas', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'clerodendrum', genus: 'Clerodendrum', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'murraya', genus: 'Murraya', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Citrus fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'serissa', genus: 'Serissa', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'carmona', genus: 'Carmona', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'gynura', genus: 'Gynura', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'iresine', genus: 'Iresine', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'alternanthera', genus: 'Alternanthera', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'acalypha', genus: 'Acalypha', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'graptophyllum', genus: 'Graptophyllum', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'aphelandra', genus: 'Aphelandra', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'strobilanthes', genus: 'Strobilanthes', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'pseuderanthemum', genus: 'Pseuderanthemum', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'pachystachys', genus: 'Pachystachys', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'thunbergia', genus: 'Thunbergia', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'allamanda', genus: 'Allamanda', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'catharanthus', genus: 'Catharanthus', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'torenia', genus: 'Torenia', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'browallia', genus: 'Browallia', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'exacum', genus: 'Exacum', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'campanula', genus: 'Campanula', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'petunia', genus: 'Petunia', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'calibrachoa', genus: 'Calibrachoa', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'verbena', genus: 'Verbena', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'lantana', genus: 'Lantana', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'colocasia', genus: 'Colocasia', waterVolume: 500, wateringInterval: 3, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'xanthosoma', genus: 'Xanthosoma', waterVolume: 450, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'adiantum', genus: 'Adiantum', waterVolume: 250, wateringInterval: 3, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'platycerium', genus: 'Platycerium', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'davallia', genus: 'Davallia', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'asparagus', genus: 'Asparagus', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'maranta', genus: 'Maranta', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'hoya', genus: 'Hoya', waterVolume: 200, wateringInterval: 10, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'tradescantia', genus: 'Tradescantia', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'pilea', genus: 'Pilea', waterVolume: 200, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'syngonium', genus: 'Syngonium', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'alocasia', genus: 'Alocasia', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'caladium', genus: 'Caladium', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'yucca', genus: 'Yucca', waterVolume: 300, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'pachira', genus: 'Pachira', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'citrus', genus: 'Citrus', waterVolume: 500, wateringInterval: 5, nutrition: [{ nutrient: 'Citrus fertilizer', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'gardenia', genus: 'Gardenia', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Acid-loving fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'azalea', genus: 'Azalea', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Acid-loving fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'nephrolepis', genus: 'Nephrolepis', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'pteris', genus: 'Pteris', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'aechmea', genus: 'Aechmea', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Bromeliad fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'tillandsia', genus: 'Tillandsia', waterVolume: 50, wateringInterval: 3, nutrition: [{ nutrient: 'Air plant fertilizer', quantity: 1, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'rhipsalis', genus: 'Rhipsalis', waterVolume: 150, wateringInterval: 7, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'schlumbergera', genus: 'Schlumbergera', waterVolume: 200, wateringInterval: 7, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'echeveria', genus: 'Echeveria', waterVolume: 100, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'sedum', genus: 'Sedum', waterVolume: 120, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'lithops', genus: 'Lithops', waterVolume: 50, wateringInterval: 30, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 1, interval: 120 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'aeonium', genus: 'Aeonium', waterVolume: 150, wateringInterval: 14, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 3, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'gasteria', genus: 'Gasteria', waterVolume: 100, wateringInterval: 21, nutrition: [{ nutrient: 'Cactus fertilizer', quantity: 2, interval: 60 }], soilType: SoilType.SAND, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'aspidistra', genus: 'Aspidistra', waterVolume: 300, wateringInterval: 10, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 3, interval: 45 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'ruellia', genus: 'Ruellia', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'impatiens', genus: 'Impatiens', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'bougainvillea', genus: 'Bougainvillea', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'jasminum', genus: 'Jasminum', waterVolume: 350, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'fittonia', genus: 'Fittonia', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'cordyline', genus: 'Cordyline', waterVolume: 350, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'croton', genus: 'Croton', waterVolume: 400, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 30 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'fatshedera', genus: 'Fatshedera', waterVolume: 350, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'hedera', genus: 'Hedera', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'tradescantia_zebrina', genus: 'Tradescantia Zebrina', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'scindapsus', genus: 'Scindapsus', waterVolume: 300, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.LOW_LIGHT },
-    { id: 'rhaphidophora', genus: 'Rhaphidophora', waterVolume: 350, wateringInterval: 7, nutrition: [{ nutrient: 'All-purpose liquid fertilizer', quantity: 5, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'aeschynanthus', genus: 'Aeschynanthus', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'columnea', genus: 'Columnea', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'sinningia', genus: 'Sinningia', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'episcia', genus: 'Episcia', waterVolume: 200, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.PEAT, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'cyclamen', genus: 'Cyclamen', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'primula', genus: 'Primula', waterVolume: 300, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.PARTIAL_SUN },
-    { id: 'cyclamen_persicum', genus: 'Cyclamen Persicum', waterVolume: 250, wateringInterval: 7, nutrition: [{ nutrient: 'Balanced NPK 10-10-10', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
-    { id: 'datura', genus: 'Datura', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'brugmansia', genus: 'Brugmansia', waterVolume: 500, wateringInterval: 5, nutrition: [{ nutrient: 'Balanced NPK 20-20-20', quantity: 5, interval: 14 }], soilType: SoilType.LOAM, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'mandevilla', genus: 'Mandevilla', waterVolume: 400, wateringInterval: 5, nutrition: [{ nutrient: 'High Potassium', quantity: 5, interval: 14 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.FULL_SUN },
-    { id: 'default', genus: 'Vriesea', waterVolume: 250, wateringInterval: 5, nutrition: [{ nutrient: 'Bromeliad fertilizer', quantity: 3, interval: 30 }], soilType: SoilType.WELL_DRAINING, sunlight: SunlightRequirement.INDIRECT },
+export async function updatePlantCareInstructions(id: string, payload: Partial<PlantCareInstructions>) {
+    const update = await table.update(id, payload);
+    return update;
 
-]
+}
+
+
+export async function getPlantCareInstructions(scientificName: string) {
+    const genus = scientificName.split(' ')[0];
+
+    const instructionFromDb: PlantCareInstructions | null = await table.getOneByField('scientificName', scientificName);
+    if (instructionFromDb) {
+        return instructionFromDb;
+    } else {
+        const instructions = plantCareInstructionByGenus(genus);
+        instructions.scientificName = scientificName;
+        const savedInstructions = await savePlantcareInstructions(instructions);
+        return savedInstructions;
+
+
+    }
+
+}
+
+
+export async function getDefaultPlantcareInstructions(payload: PlantIdentificationResult): Promise<PlantCareInstructions> {
+    const scientificName = payload.classification.name;
+
+    const instructions = await getPlantCareInstructions(scientificName);
+
+    if (!instructions.imageURl) {
+        const imageUrl = payload.classification.similarImages[0];
+        instructions.imageURl = imageUrl || '';
+        updatePlantCareInstructions(instructions.id, { imageURl: imageUrl });
+    }
+    // const instructions = plantCareInstructionByGenus(genus);
+    // instructions.imageURl = imageUrl || '';
+    // savePlantcareInstructions(instructions);
+    return instructions;
+}
+
+

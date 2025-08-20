@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npm run build && ts-node-dev --respawn --transpile-only src/index.ts",
+    "copy-assets": "cp -r assets dist/",
+    "dev": "npm run build && npm run copy-assets  && ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "npm run dev"
   },
@@ -20,6 +21,7 @@
     "express": "^5.1.0",
     "firebase": "^11.10.0",
     "firebase-admin": "^13.2.0",
+    "fs": "0.0.1-security",
     "http": "^0.0.1-security",
     "multer": "^2.0.2",
     "nodemon": "^3.1.9",

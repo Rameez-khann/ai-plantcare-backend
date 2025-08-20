@@ -1,4 +1,4 @@
-import { IndoorPlant } from "./indoor-plant.interface";
+import { IndoorPlant } from "./interfaces/indoor-plant.interface";
 
 export const indoorPlantsList: IndoorPlant[] = [
     {

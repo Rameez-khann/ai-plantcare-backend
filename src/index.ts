@@ -1,43 +1,40 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors'; // <-- import cors=
-import multer from 'multer';
-import path from 'path';
-import { login, registerUser } from './features/authentication/aithentication';
-import { sendImageForIdentification } from './core/kindwise/kindwise.functions';
-import { getDefaultPlantcareInstructions, savePlantInstructionsToDatabase } from './features/indoor-plants/indoor-plants.functions';
-dotenv.config();
-
-const storage = multer.memoryStorage(); // or use diskStorage if saving to filesystem
-const upload = multer({ storage });
-
-const app = express();
-const PORT = 5501;
-
-app.use(cors({
-    origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
-    //   credentials: true
-}));
-
-app.use(express.json()); // For JSON body
-app.use(express.urlencoded({ extended: true }))
+import { generateUniqueId } from "victor-dev-toolbox";
+import { Application, PORT } from "./application";
+import { convertToBase64, saveFileToStorage } from "./core/files/files";
+import { storageConfig } from "./core/files/storage";
+import { sendImageForHealthCheck, sendImageForIdentification } from "./core/kindwise/kindwise.functions";
+import { PlantHealthResult, PlantIdentificationResult } from "./core/kindwise/kindwise.interface";
+import { login, registerUser } from "./features/authentication/aithentication";
+import { UserResponse } from "./features/authentication/users.interface";
+import { getDefaultPlantcareInstructions } from "./features/indoor-plants/plant-care-instructions";
+import path from "path";
+import { getPlantHistory, savePlantIdentification } from "./features/indoor-plants/plant-health";
+import { getUserPlants } from "./features/indoor-plants/user-plants";
+import { log } from "console";
+const app = Application;
+import express from "express";
 
 
 
-// Authentication
+app.use(
+    "/assets",
+    express.static(path.join(process.cwd(), "assets"))
+);
+
+
+// Signup
 app.post('/signup', async (req, res) => {
     try {
 
-        const createUser = await registerUser(req.body);
-        console.log(createUser);
+        const createUser: UserResponse = await registerUser(req.body);
         res.send(createUser)
-
     } catch (error) {
         res.send(null)
     }
 
 });
 
+//  Login
 app.post('/login', async (req, res) => {
     try {
 
@@ -50,42 +47,94 @@ app.post('/login', async (req, res) => {
 
 });
 
-// app.post('/validate-user', (req, res) => {
-//     res.send('Validate');
-// });
 
 
-// My Plants
-app.get('/my-plants', (req, res) => {
-    res.send('My Plants');
-});
-
-
-app.post('/identify-plant', upload.single('file'), async (req, res) => {
-
+//  identify Plant
+app.post('/identify-plant', storageConfig.single('file'), async (req, res) => {
+    const userId = req.body.userId; // 👈 capture userId
+    const plantId = generateUniqueId();
+    // Check if image was uploaded
     if (!req.file) {
-        return res.status(400).send('No file uploaded.');
+        return res.status(400).send('No image uploaded.');
     }
 
-    const base64 = req.file.buffer.toString('base64');
-    const identification = await sendImageForIdentification(base64);
+
+
+    // Convert image to base64 as required by Kindwise
+    const filePath = path.resolve(req.file.path);
+    const base64 = convertToBase64(filePath);
+
+    // Plant Identification from Kindwise
+    const identification: PlantIdentificationResult | null = await sendImageForIdentification({ image: base64, userId, plantId });
+
     if (identification) {
-        const instructions = getDefaultPlantcareInstructions(identification);
-        identification.classification[0].instructions = instructions;
-        // identification.instructions = instructions;
+        const imageURL = await saveFileToStorage(req.file);
+        //   Get the instructions for the plant specified
+        identification.imageUrl = imageURL;
+
+        const instructions = await getDefaultPlantcareInstructions(identification);
+
+        identification.classification.instructions = instructions;
+        const saveIdentification = await savePlantIdentification(identification);
 
     }
-    res.send(identification)
+
+    res.send(identification);
 });
 
 
-app.get('/plant-instructions', async (req, res) => {
-    const response = await savePlantInstructionsToDatabase();
-    res.send(response);
+//  Health Check
+app.post('/plant-health', storageConfig.single('file'), async (req, res) => {
+    const userId = req.body.userId; // 👈 capture userId
+    const plantId = req.body.plantId;
+
+    // Check if image was uploaded
+    if (!req.file) {
+        return res.status(400).send('No image uploaded.');
+    }
+
+    if (!plantId) {
+        return res.status(400).send('Plant Id not found');
+    }
+
+
+
+    const filePath = path.resolve(req.file.path);
+    const base64 = convertToBase64(filePath);
+
+    // Plant Identification from Kindwise
+    const healthCheck: PlantHealthResult | null = await sendImageForHealthCheck({ image: base64, userId, plantId, imageURL: base64 })
+
+
+    res.send(healthCheck);
+});
+
+
+app.get('/plant-health/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // get the dynamic id
+        const result = await getPlantHistory(id); // pass id if needed
+        res.json(result); // send response back
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Plant Records not found" });
+    }
+});
+
+
+app.get('/dashboard/user-plants/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // get the dynamic id
+        const result = await getUserPlants(id); // pass id if needed
+        res.json(result); // send response back
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Plant Records not found" });
+    }
 });
 
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.info(`🚀 Server is running on http://localhost:${PORT}`);
 
 });

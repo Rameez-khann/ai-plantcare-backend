@@ -1,42 +1,9 @@
-//   "result": {
-//     "is_plant": {
-//       "probability": 0.47637302,
-//       "binary": false,
-//       "threshold": 0.5
-//     },
-//     "classification": {
-//       "suggestions": [
-//         {
-//           "id": "ae8faed4a61d9de2",
-//           "name": "Leucojum vernum",
-//           "probability": 0.9998723,
-//           "similar_images": [
-//             {
-//               "id": "587aeca4494253948c702d8356b4bebc2557a63d",
-//               "url": "https://plant-id.ams3.cdn.digitaloceanspaces.com/similar_images/3/587/aeca4494253948c702d8356b4bebc2557a63d.jpg",
-//               "license_name": "CC0",
-//               "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-//               "citation": "hen_ry",
-//               "similarity": 0.683,
-//               "url_small": "https://plant-id.ams3.cdn.digitaloceanspaces.com/similar_images/3/587/aeca4494253948c702d8356b4bebc2557a63d.small.jpg"
-//             },
-//             {
-//               "id": "dffa4fc0912feefa1516df8c20c080286556269f",
-//               "url": "https://plant-id.ams3.cdn.digitaloceanspaces.com/similar_images/3/dff/a4fc0912feefa1516df8c20c080286556269f.jpeg",
-//               "similarity": 0.543,
-//               "url_small": "https://plant-id.ams3.cdn.digitaloceanspaces.com/similar_images/3/dff/a4fc0912feefa1516df8c20c080286556269f.small.jpeg"
-//             }
-//           ],
-//           "details": {
-//             "language": "en",
-//             "entity_id": "ae8faed4a61d9de2"
-//           }
-//         }
-//       ]
 
-import { PlantCareInstructions } from "../../features/indoor-plants/indoor-plant.interface"
+
+import { PlantCareInstructions } from "../../features/indoor-plants/interfaces/indoor-plant.interface"
 
 export interface KindwiseResult {
+    plantId: string,
     is_plant: {
         probability: number,
         binary: boolean,
@@ -65,11 +32,95 @@ export interface PlantSuggestion {
     probability: number,
     similarImages: string[],
     instructions?: PlantCareInstructions,
-
 }
 
+
 export interface PlantIdentificationResult {
+    id: string,
+    userId?: string,
     isPlant: boolean,
     probability: number,
-    classification: PlantSuggestion[],
+    classification: PlantSuggestion,
+    health?: PlantHealthResult,
+    imageUrl?: string,
+    plantId: string
+}
+
+export interface PlantDiseaseInfo {
+    id: string,
+    name: string,
+    probability: number,
+    similarImages: string[],
+}
+
+
+
+export interface PlantHealthResult {
+    id: string,
+    userId?: string,
+    isPlant: boolean,
+    probability: number,
+    disease: PlantDiseaseInfo | null,
+    plantId?: string,
+    imageUrl?: string,
+    healthy?: string,
+    createdAt?: string,
+}
+
+
+
+
+export enum PlantSymptoms {
+    NUTRIENT_DEFICIENCY = "nutrient deficiency",
+    EXCESS_WATER = "water excess or uneven watering",
+    WATER_DEFICIENCY = "water deficiency",
+    LACK_OF_LIGHT = "lack of light",
+    EXCESS_LIGHT = "light excess",
+    SENESCENCE = "senescence",
+    FUNGI = "Fungi"
+}
+
+export enum PlantEnumsaDiseases {
+    NutrientDeficiency = "nutrient deficiency",
+    WaterExcessOrUneven = "water excess or uneven watering",
+    LackOfLight = "lack of light",
+    LightExcess = "light excess",
+    WaterDeficiency = "water deficiency",
+    Senescence = "senescence"
+}
+
+
+// export interface PlantDiseaseInfo {
+//     id: string,
+//     name: string,
+//     probability: number,
+//     similarImages: string[],
+// }
+
+
+export interface KindWiseHealthResult {
+    is_plant: {
+        probability: number,
+        binary: boolean,
+        threshold: number,
+    }
+
+    is_healthy: {
+        probability: number,
+        binary: boolean,
+        threshold: number,
+    },
+    disease: {
+        suggestions: {
+            id: string,
+            name: PlantSymptoms,
+            probability: number,
+            similar_images: {
+                id: string,
+                url: string,
+                similarity: number,
+                url_small: string,
+            }[]
+        }[]
+    }
 }
