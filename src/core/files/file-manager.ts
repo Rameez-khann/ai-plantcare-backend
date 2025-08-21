@@ -2,6 +2,7 @@ import { join } from "path";
 import * as fs from "fs";
 import { storageFolder } from "./storage";
 import { PORT } from "../../application";
+import { generateUniqueId } from "victor-dev-toolbox";
 
 export class FileManager {
     private fileUploadsEndpoint = `http://127.0.0.1:${PORT}/${storageFolder}`;
@@ -10,7 +11,7 @@ export class FileManager {
         data?: any
     ): Promise<{ url: string; filename: string, response: any }> {
         const filename = file.filename;
-        const url = `${this.fileUploadsEndpoint}/${filename}`;
+        const url = `${this.fileUploadsEndpoint}/${generateUniqueId()}`;
 
         const responseData = {
             statusCode: 200,

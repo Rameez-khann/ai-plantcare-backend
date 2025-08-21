@@ -2,13 +2,13 @@ import { generateUniqueId } from "victor-dev-toolbox";
 import { Application, PORT } from "./application";
 import { convertToBase64, saveFileToStorage } from "./core/files/files";
 import { storageConfig } from "./core/files/storage";
-import { sendImageForHealthCheck, sendImageForIdentification } from "./core/kindwise/kindwise.functions";
+import { plantIdentification, sendImageForHealthCheck, sendImageForIdentification } from "./core/kindwise/kindwise.functions";
 import { PlantHealthResult, PlantIdentificationResult } from "./core/kindwise/kindwise.interface";
 import { login, registerUser } from "./features/authentication/aithentication";
 import { UserResponse } from "./features/authentication/users.interface";
 import { getDefaultPlantcareInstructions } from "./features/indoor-plants/plant-care-instructions";
 import path from "path";
-import { getPlantHistory, savePlantIdentification } from "./features/indoor-plants/plant-health";
+import { getPlantIdentification, savePlantIdentification } from "./features/indoor-plants/plant-health";
 import { getUserPlants } from "./features/indoor-plants/user-plants";
 import { log } from "console";
 const app = Application;
@@ -53,33 +53,36 @@ app.post('/login', async (req, res) => {
 //  identify Plant
 app.post('/identify-plant', storageConfig.single('file'), async (req, res) => {
     const userId = req.body.userId; // 👈 capture userId
-    const plantId = generateUniqueId();
-    // Check if image was uploaded
-    if (!req.file) {
+    const plantId: string | null = req.body.plantId || null;
+    const file: Express.Multer.File | null = req.file || null;
+    // // Check if image     was uploaded
+    if (!file) {
         return res.status(400).send('No image uploaded.');
     }
 
 
 
-    // Convert image to base64 as required by Kindwise
-    const filePath = path.resolve(req.file.path);
-    const base64 = convertToBase64(filePath);
+    // // Convert image to base64 as required by Kindwise
+    // const filePath = path.resolve(req.file.path);
+    // const base64 = convertToBase64(filePath);
 
-    // Plant Identification from Kindwise
-    const identification: PlantIdentificationResult | null = await sendImageForIdentification({ image: base64, userId, plantId });
+    // // Plant Identification from Kindwise
+    // const identification: PlantIdentificationResult | null = await sendImageForIdentification({ image: base64, userId, plantId });
 
-    if (identification) {
-        const imageURL = await saveFileToStorage(req.file);
-        //   Get the instructions for the plant specified
-        identification.imageUrl = imageURL;
+    // if (identification) {
+    //     const imageURL = await saveFileToStorage(req.file);
+    //     //   Get the instructions for the plant specified
+    //     identification.imageUrl = imageURL;
 
-        const instructions = await getDefaultPlantcareInstructions(identification);
+    // const instructions = await getDefaultPlantcareInstructions(identification);
 
-        identification.classification.instructions = instructions;
-        const saveIdentification = await savePlantIdentification(identification);
+    //     identification.classification.instructions = instructions;
+    //     const saveIdentification = await savePlantIdentification(identification);
 
-    }
+    // }
 
+    // res.send(identification);
+    const identification = await plantIdentification({ plantId, userId, file });
     res.send(identification);
 });
 
@@ -114,7 +117,7 @@ app.post('/plant-health', storageConfig.single('file'), async (req, res) => {
 app.get('/plant-health/:id', async (req, res) => {
     try {
         const { id } = req.params; // get the dynamic id
-        const result = await getPlantHistory(id); // pass id if needed
+        const result = await getPlantIdentification(id); // pass id if needed
         res.json(result); // send response back
     } catch (error) {
         console.error(error);

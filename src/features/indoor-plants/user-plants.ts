@@ -1,10 +1,10 @@
-import { generateUniqueId } from "victor-dev-toolbox";
+import { generateUniqueId, sortArrayByKey } from "victor-dev-toolbox";
 import { FirebaseClient } from "../../core/firebase/firebase-client";
 import { PlantCareInstructions, UserPlants } from './interfaces/indoor-plant.interface';
 
 const userPlantsTable = new FirebaseClient('user-plants');
 const plantInstructionsTable = new FirebaseClient('plant-care-instructions');
-const identificationHistory = new FirebaseClient('identified-plants');
+const identificationHistory = new FirebaseClient('_identified_-plants');
 
 export async function getUserPlants(userId: string): Promise<UserPlants[]> {
     const records = await identificationHistory.getByField('userId', userId);
@@ -76,6 +76,12 @@ export async function savePlantIdentificationRecord(payload: PlantCareInstructio
 }
 
 
-export async function customizeAndSaveUserInstructions(instructions: PlantCareInstructions) {
+export async function saveUserPlantInstructions(instructions: PlantCareInstructions): Promise<PlantCareInstructions> {
+    return userPlantsTable.create(instructions);
+}
 
+
+export async function getUserPLantInstructionsByPlantId(plantId: string): Promise<PlantCareInstructions[]> {
+    const records = await userPlantsTable.getByField('plantId', plantId);
+    return sortArrayByKey('createdAt', 'DESC', records);
 }

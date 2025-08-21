@@ -9,7 +9,7 @@ export type FirebaseCollections =
   | 'plant-care-instructions'
   | 'user-plants'
   | 'plant-health-history'
-  | 'identified-plants'
+  | '_identified_-plants'
   | 'customized-user-instructions';
 /**
  * FirebaseClient

@@ -1,3 +1,5 @@
+import { getTimeAgo } from "victor-dev-toolbox";
+
 export interface IndoorPlant {
     id: string;
     name: string;
@@ -48,6 +50,7 @@ export interface PlantCareInstructions {
     sunlight: SunlightRequirement;
     imageURl?: string,
     plantId?: string,
+    createdAt?: string,
 }
 
 export interface UserPlants {
@@ -55,3 +58,4 @@ export interface UserPlants {
     userId: string,
     scientificNames: string[]
 }
+

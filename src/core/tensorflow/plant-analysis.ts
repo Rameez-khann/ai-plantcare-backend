@@ -4,6 +4,8 @@ import { FirebaseClient } from '../firebase/firebase-client';
 import { PlantDiseaseInfo, PlantHealthResult, PlantSymptoms } from '../kindwise/kindwise.interface';
 import { AnalysisResult, WaterAnalysis, SunlightAnalysis, SoilAnalysis, NutritionAnalysis, HealthAnalysis } from './interfaces/plant-analysis.interface';
 import { TensorflowAnalysis } from './tensorflow-analysis';
+import { getUserPLantInstructionsByPlantId } from '../../features/indoor-plants/user-plants';
+import { getDefaultPlantcareInstructions } from '../../features/indoor-plants/plant-care-instructions';
 
 
 
@@ -16,6 +18,7 @@ export class PlantAnalysis {
     private userInstructions = new FirebaseClient('customized-user-instructions');
     private plantCareInstructions = new FirebaseClient('plant-care-instructions');
     private plantHealthTable = new FirebaseClient('plant-health-history');
+    private plantHealthHistory = new FirebaseClient('plant-health-history');
 
     // Tensorflow
     private tensorflowAnalysis = new TensorflowAnalysis();
@@ -23,11 +26,13 @@ export class PlantAnalysis {
 
     // Main analysis method
     public async analyzeCurrentResults(plantId: string, currentInstruction: PlantCareInstructions): Promise<PlantCareInstructions> {
-        const instructions: PlantCareInstructions[] = await this.userInstructions.getByField('plantId', plantId);
-        const health: PlantHealthResult[] = await this.plantHealthTable.getByField('plantId', plantId);
+        const health: PlantHealthResult[] = await this.plantHealthHistory.getByField('plantId', plantId);
+        // const health: PlantCareInstructions[] = await this.plantCareInstructions.getByField('plantId', plantId);
+        // console.log({ instructions, plantId });
+        // Plant Identification
 
         // Sorted from most recent to least recent
-        this.previousInstructions = sortArrayByKey('createdAt', 'DESC', instructions);
+        // this.previousInstructions = sortArrayByKey('createdAt', 'DESC', instructions);
         this.currentInstructions = currentInstruction;
 
         // Get recent health data (last 30 days worth)
@@ -67,8 +72,8 @@ export class PlantAnalysis {
         const intervalTrend = this.calculateTrend(wateringIntervals);
 
         // Calculate averages
-        const averageVolume = waterVolumes.reduce((a, b) => a + b, 0) / waterVolumes.length;
-        const averageInterval = wateringIntervals.reduce((a, b) => a + b, 0) / wateringIntervals.length;
+        const averageVolume = Math.round(waterVolumes.reduce((a, b) => a + b, 0) / waterVolumes.length);
+        const averageInterval = Math.round(wateringIntervals.reduce((a, b) => a + b, 0) / wateringIntervals.length);
 
         return {
             volumeTrend,
@@ -80,6 +85,7 @@ export class PlantAnalysis {
     }
 
     private analyzeSunLevel(instructions: PlantCareInstructions[]): SunlightAnalysis {
+
         if (instructions.length === 0) {
             return {
                 currentRequirement: SunlightRequirement.INDIRECT,
@@ -222,8 +228,8 @@ export class PlantAnalysis {
         }
 
         if (healthAnalysis.criticalSymptoms.includes(PlantSymptoms.WATER_DEFICIENCY)) {
-            optimizedInstructions.waterVolume = optimizedInstructions.waterVolume * 1.3;
-            optimizedInstructions.wateringInterval = Math.max(1, optimizedInstructions.wateringInterval * 0.8);
+            optimizedInstructions.waterVolume = Math.round(optimizedInstructions.waterVolume * 1.3);
+            optimizedInstructions.wateringInterval = Math.round(Math.max(1, optimizedInstructions.wateringInterval * 0.8));
         }
 
         // Sunlight adjustments
@@ -290,4 +296,13 @@ export class PlantAnalysis {
             interval: Math.max(7, nutrient.interval * 0.9) // Increase frequency (decrease interval)
         }));
     }
+
+    // private async getPlantInstructions(plantId: string) {
+    //     const instructions = await getUserPLantInstructionsByPlantId(plantId);
+    //     let currentInstruction: PlantCareInstructions = instructions[0];
+
+    //     if (!currentInstruction) {
+    //         currentInstruction = await getDefaultPlantcareInstructions()
+    //     }
+    // }
 }

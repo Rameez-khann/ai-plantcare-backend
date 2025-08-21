@@ -37,13 +37,16 @@ export interface PlantSuggestion {
 
 export interface PlantIdentificationResult {
     id: string,
+    identification?: string,
     userId?: string,
     isPlant: boolean,
     probability: number,
+    name: string,
     classification: PlantSuggestion,
     health?: PlantHealthResult,
     imageUrl?: string,
-    plantId: string
+    plantId: string,
+    html?: string,
 }
 
 export interface PlantDiseaseInfo {
@@ -65,6 +68,7 @@ export interface PlantHealthResult {
     imageUrl?: string,
     healthy?: string,
     createdAt?: string,
+    instructions?: PlantCareInstructions,
 }
 
 

@@ -3,7 +3,9 @@
 export const KindwiseConfig = {
     apiURL: `https://plant.id/api/v3`,
     // healthApiKey: `Nh8Zq7J8P7h5F6lNwaep5QAsvl7HyLZiUZdb3dOKoBBYyFGIbH`,
-    apiKey: `Nh8Zq7J8P7h5F6lNwaep5QAsvl7HyLZiUZdb3dOKoBBYyFGIbH`,
+    // apiKey: `Nh8Zq7J8P7h5F6lNwaep5QAsvl7HyLZiUZdb3dOKoBBYyFGIbH`,
+    apiKey: `68KGALRgmIu45Ek6JAvzAgAqeM6ultuVRi2hpFel0yitF1Svuv`,
+
     healthURL: `https://plant.id/api/v3/health_assessment?details=local_name,description,url,treatment,classification,common_names,cause`
 
 }
