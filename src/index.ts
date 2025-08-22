@@ -8,7 +8,7 @@ import { login, registerUser } from "./features/authentication/aithentication";
 import { UserResponse } from "./features/authentication/users.interface";
 import { getDefaultPlantcareInstructions } from "./features/indoor-plants/plant-care-instructions";
 import path from "path";
-import { getPlantIdentification, savePlantIdentification } from "./features/indoor-plants/plant-health";
+import { savePlantIdentification } from "./features/indoor-plants/plant-health";
 import { getUserPlants } from "./features/indoor-plants/user-plants";
 import { log } from "console";
 const app = Application;
@@ -117,7 +117,8 @@ app.post('/plant-health', storageConfig.single('file'), async (req, res) => {
 app.get('/plant-health/:id', async (req, res) => {
     try {
         const { id } = req.params; // get the dynamic id
-        const result = await getPlantIdentification(id); // pass id if needed
+        const
+        const result = await getPlantH(id); // pass id if needed
         res.json(result); // send response back
     } catch (error) {
         console.error(error);
