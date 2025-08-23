@@ -117,8 +117,9 @@ app.post('/plant-health', storageConfig.single('file'), async (req, res) => {
 app.get('/plant-health/:id', async (req, res) => {
     try {
         const { id } = req.params; // get the dynamic id
-        const
-        const result = await getPlantH(id); // pass id if needed
+        // const result = await plantIdentification(id); // pass id if needed
+        const result = await getUserPlants(id); // pass id if needed
+
         res.json(result); // send response back
     } catch (error) {
         console.error(error);
