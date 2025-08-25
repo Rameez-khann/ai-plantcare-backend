@@ -215,7 +215,55 @@ export class PlantAnalysis {
         };
     }
 
-    private async prepareIdealPlantCareInstructions(analysis: AnalysisResult, currentInstruction: PlantCareInstructions): Promise<PlantCareInstructions> {
+    // private async prepareIdealPlantCareInstructions(analysis: AnalysisResult, currentInstruction: PlantCareInstructions): Promise<PlantCareInstructions> {
+    //     let optimizedInstructions = { ...currentInstruction };
+
+    //     // Apply health-based adjustments
+    //     const { healthAnalysis } = analysis;
+
+    //     // Water adjustments based on symptoms
+    //     if (healthAnalysis.criticalSymptoms.includes(PlantSymptoms.EXCESS_WATER)) {
+    //         optimizedInstructions.waterVolume = Math.max(50, optimizedInstructions.waterVolume * 0.7);
+    //         optimizedInstructions.wateringInterval = Math.min(14, optimizedInstructions.wateringInterval * 1.3);
+    //     }
+
+    //     if (healthAnalysis.criticalSymptoms.includes(PlantSymptoms.WATER_DEFICIENCY)) {
+    //         optimizedInstructions.waterVolume = Math.round(optimizedInstructions.waterVolume * 1.3);
+    //         optimizedInstructions.wateringInterval = Math.round(Math.max(1, optimizedInstructions.wateringInterval * 0.8));
+    //     }
+
+    //     // Sunlight adjustments
+    //     if (healthAnalysis.criticalSymptoms.includes(PlantSymptoms.LACK_OF_LIGHT)) {
+    //         optimizedInstructions.sunlight = this.increaseSunlight(optimizedInstructions.sunlight);
+    //     }
+
+    //     if (healthAnalysis.criticalSymptoms.includes(PlantSymptoms.EXCESS_LIGHT)) {
+    //         optimizedInstructions.sunlight = this.decreaseSunlight(optimizedInstructions.sunlight);
+    //     }
+
+    //     // Nutrition adjustments
+    //     if (healthAnalysis.criticalSymptoms.includes(PlantSymptoms.NUTRIENT_DEFICIENCY)) {
+    //         optimizedInstructions.nutrition = this.increaseNutrition(optimizedInstructions.nutrition);
+    //     }
+
+    //     // Soil adjustments for fungi issues
+    //     if (healthAnalysis.criticalSymptoms.includes(PlantSymptoms.FUNGI)) {
+    //         optimizedInstructions.soilType = SoilType.WELL_DRAINING;
+    //         optimizedInstructions.waterVolume = Math.max(50, optimizedInstructions.waterVolume * 0.6);
+    //     }
+
+    //     // Generate new ID for the optimized instructions
+    //     optimizedInstructions.id = generateUniqueId();
+
+    //     return optimizedInstructions;
+    // }
+
+    // Helper methods
+
+    private async prepareIdealPlantCareInstructions(
+        analysis: AnalysisResult,
+        currentInstruction: PlantCareInstructions
+    ): Promise<PlantCareInstructions> {
         let optimizedInstructions = { ...currentInstruction };
 
         // Apply health-based adjustments
@@ -255,10 +303,22 @@ export class PlantAnalysis {
         // Generate new ID for the optimized instructions
         optimizedInstructions.id = generateUniqueId();
 
+        // ---- NEW PART: round everything before returning ----
+        optimizedInstructions = {
+            ...optimizedInstructions,
+            waterVolume: Math.round(optimizedInstructions.waterVolume),
+            wateringInterval: Math.round(optimizedInstructions.wateringInterval),
+            nutrition: optimizedInstructions.nutrition.map(n => ({
+                ...n,
+                quantity: Math.round(n.quantity),
+                interval: Math.round(n.interval)
+            }))
+        };
+
         return optimizedInstructions;
     }
 
-    // Helper methods
+
     private calculateTrend(values: number[]): 'increase' | 'decrease' | 'consistent' {
         if (values.length < 2) return 'consistent';
 
