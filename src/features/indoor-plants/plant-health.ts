@@ -65,7 +65,7 @@ async function getPlantInstructions(plantId: string): Promise<PlantHealthResult[
 
 export async function savePlantIdentification(identification: PlantIdentificationResult): Promise<PlantIdentificationResult> {
     const name = identification.classification.name;
-    const recordInDB = await identificationTable.getByField('name', name);
+    const recordInDB = await identificationTable.getOneByField('name', name);
     if (!recordInDB) {
         const id = identification.id;
         identification.identification = id;
@@ -75,6 +75,11 @@ export async function savePlantIdentification(identification: PlantIdentificatio
     return recordInDB[0];
 
 }
+
+
+
+
+
 
 export async function getPlantIdentification(id: string): Promise<PlantIdentificationResult> {
     return identificationTable.getOne(id);

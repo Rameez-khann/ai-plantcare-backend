@@ -14,6 +14,7 @@ import { log } from "console";
 const app = Application;
 import express from "express";
 import { PlantAnalysis } from "./core/tensorflow/plant-analysis";
+import { FirebaseClient } from "./core/firebase/firebase-client";
 
 
 
@@ -101,16 +102,19 @@ app.post('/plant-health', storageConfig.single('file'), async (req, res) => {
         return res.status(400).send('Plant Id not found');
     }
 
+    // res.send(identification);
+    const identification = await plantIdentification({ plantId, userId, file: req.file });
+    res.send(identification);
 
 
-    const filePath = path.resolve(req.file.path);
-    const base64 = convertToBase64(filePath);
+    // const filePath = path.resolve(req.file.path);
+    // const base64 = convertToBase64(filePath);
 
-    // Plant Identification from Kindwise
-    const healthCheck: PlantHealthResult | null = await sendImageForHealthCheck({ image: base64, userId, plantId, imageURL: base64 })
+    // // Plant Identification from Kindwise
+    // const healthCheck: PlantHealthResult | null = await sendImageForHealthCheck({ image: base64, userId, plantId, imageURL: base64 })
 
 
-    res.send(healthCheck);
+    // res.send(healthCheck);
 });
 
 
@@ -126,6 +130,7 @@ app.get('/plant-health/:id', async (req, res) => {
         res.status(500).json({ error: "Plant Records not found" });
     }
 });
+
 
 
 app.get('/dashboard/user-plants/:id', async (req, res) => {

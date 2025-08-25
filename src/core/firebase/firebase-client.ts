@@ -7,7 +7,7 @@ import { generateUniqueId } from 'victor-dev-toolbox';
 export type FirebaseCollections =
   | 'users'
   | 'plant-care-instructions'
-  | 'user-plants'
+  | 'user-plants_'
   | 'plant-health-history'
   | '_identified_-plants'
   | 'customized-user-instructions';

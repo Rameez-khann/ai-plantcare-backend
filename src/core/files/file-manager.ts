@@ -1,4 +1,4 @@
-import { join } from "path";
+import { join, extname } from "path";
 import * as fs from "fs";
 import { storageFolder } from "./storage";
 import { PORT } from "../../application";
@@ -11,7 +11,7 @@ export class FileManager {
         data?: any
     ): Promise<{ url: string; filename: string, response: any }> {
         const filename = file.filename;
-        const url = `${this.fileUploadsEndpoint}/${generateUniqueId()}`;
+        const url = `${this.fileUploadsEndpoint}/${filename}`;
 
         const responseData = {
             statusCode: 200,

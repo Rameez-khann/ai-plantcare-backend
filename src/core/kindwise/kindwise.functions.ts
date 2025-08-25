@@ -10,7 +10,7 @@ import { convertToBase64, saveFileToStorage } from "../files/files";
 import { getDefaultPlantcareInstructions } from "../../features/indoor-plants/plant-care-instructions";
 import { PlantAnalysis } from "../tensorflow/plant-analysis";
 import { plantInstructionsUI } from "../../features/indoor-plants/instructions-page";
-import { getUserPLantInstructionsByPlantId } from "../../features/indoor-plants/user-plants";
+import { getUserPLantInstructionsByPlantId, saveUserPlant } from "../../features/indoor-plants/user-plants";
 
 const httpClient = new HttpClient();
 
@@ -151,11 +151,13 @@ export async function plantIdentification(payload: { plantId: string | null, fil
 
     if (!identification) {
         const result = await sendImageForIdentification({ image: base64, userId, plantId });
-        const imageURL = await saveFileToStorage(file);
+        const imageURL = result?.classification.similarImages[0];
         if (result) result.imageUrl = imageURL;
         identification = result;
 
     }
+    console.log({ identification });
+
     if (!identification) throw new Error("ID ERROR");
 
     if (!payload.plantId) {
@@ -171,6 +173,7 @@ export async function plantIdentification(payload: { plantId: string | null, fil
     identification.classification.instructions = newInstructions;
 
     const saveIdentification = await savePlantIdentification(identification);
+    const savePlant = await saveUserPlant(userId, identification);
 
     // html
     const html = plantInstructionsUI([newInstructions]);

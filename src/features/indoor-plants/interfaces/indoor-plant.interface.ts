@@ -1,4 +1,5 @@
 import { getTimeAgo } from "victor-dev-toolbox";
+import { PlantIdentificationResult } from "../../../core/kindwise/kindwise.interface";
 
 export interface IndoorPlant {
     id: string;
@@ -53,9 +54,7 @@ export interface PlantCareInstructions {
     createdAt?: string,
 }
 
-export interface UserPlants {
-    id: string,
-    userId: string,
-    scientificNames: string[]
+export interface UserPlants extends PlantIdentificationResult {
+
 }
 
